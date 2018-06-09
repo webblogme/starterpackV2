@@ -1,0 +1,60 @@
+version: "2"
+services:
+
+    php:
+      build: ./build
+      container_name: php
+      volumes:
+        - /htdocs/www/www/:/var/www/html
+      networks:
+        - front
+        - back
+      links:
+        - mysql
+      ports:
+        - 80:80
+      domainname: foo.com
+      hostname: foo
+
+    mysql:
+      image: mysql:5.7
+      container_name: mysql
+      command: [
+        '--default_authentication_plugin=mysql_native_password',
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_unicode_ci',
+        '--innodb_use_native_aio=0'
+     ]
+      volumes:
+        - /htdocs/www/sql/:/var/lib/mysql
+      ports:
+        - 3306:3306
+      networks:
+        - back
+      environment:
+        - MYSQL_USERNAME=root
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_DATABASE=mysql
+
+    pma:
+      image: phpmyadmin/phpmyadmin:4.6
+      container_name: pma
+      links:
+        - mysql:db
+      volumes:
+        - /htdocs/www/build/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+      ports:
+        - 8888:80
+      networks:
+        - back
+      environment:
+        - PMA_ARBITRARY=1
+        - MYSQL_USERNAME= root
+        - MYSQL_ROOT_PASSWORD= root
+        - MYSQL_DATABASE=mysql
+volumes:
+    wordpress-db-data:
+      driver: local
+networks:
+  front:
+  back:
