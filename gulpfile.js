@@ -33,7 +33,7 @@ var sourcemaps   = require('gulp-sourcemaps'); // Maps code in a compressed file
 var notify       = require('gulp-notify'); // Sends message notification to you
 var browserSync  = require('browser-sync').create(); // Reloads browser and injects CSS. Time-saving synchronised browser testing.
 var reload       = browserSync.reload; // For manual browser reload.
-
+var uglifycss    = require('gulp-uglifycss'); //Gulp plugin to use UglifyCSS
 
 /*------------------------------my vars------------------------------*/
 
@@ -144,10 +144,22 @@ gulp.task('compile-lesssourcemapEN', function() {
 	gulp.src(mylessdest+css_en).pipe(browserSync.stream());
 });
 
+gulp.task('cssUglify', function () {
+	gulp.src(mylessdest+css_en)
+	.pipe(uglifycss({
+		"maxLineLen": 0,
+		"uglyComments": true
+	}))
+	.pipe(rename(min_css_en))
+	.pipe(gulp.dest(mylessdest));
+	log(chalk.white.bgYellow.bold('Uglify CSS done!'));
+});
+
 gulp.task( 'default', ['browser-sync'], function () {
 
 	gulp.watch(less_en, ['compile-lessEN']);
 	gulp.watch(less_en, ['compile-lesssourcemapEN']);
 	gulp.watch(mylessdest+css_en, ['cssinjectEN']);
+	gulp.watch(mylessdest+css_en, ['cssUglify']);
 	
 });
